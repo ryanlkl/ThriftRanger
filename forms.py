@@ -21,6 +21,7 @@ class RegisterForm(FlaskForm):
 
 class StoreForm(FlaskForm):
   name = StringField("Store Name", validators=[DataRequired()])
+  email = EmailField("Email", validators=[DataRequired()])
   address = StringField("Address", validators=[DataRequired()])
   longitude = FloatField("Longitude", validators=[DataRequired()])
   latitude = FloatField("Latitude", validators=[DataRequired()])

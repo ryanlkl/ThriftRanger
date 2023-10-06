@@ -57,19 +57,19 @@ def stores(username):
 # Create Items
 @app.route("/<string:username>/create-store", methods=["GET","POST"])
 def addStore(username):
-  user = db.session.execute(db.select(User).where(User.username == username)).scalar()
   form = StoreForm()
   if form.validate_on_submit():
+    user = db.session.execute(db.select(User).where(User.username == username)).scalar()
     new_store = Store(
       name = form.name.data,
-      admin = form.email.data,
       longitude = form.longitude.data,
       latitude = form.latitude.data,
-      address = form.address.data
+      address = form.address.data,
+      admin = user
     )
     db.session.add(new_store)
     db.session.commit()
-    return redirect(url_for("stores",username=user))
+    return redirect(url_for("stores",username=user.username))
   return render_template("addStore.html",form=form)
 
 @app.route("/create-post", methods=["GET","POST"])

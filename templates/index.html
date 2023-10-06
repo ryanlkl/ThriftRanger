@@ -7,7 +7,9 @@
     </h1>
     <!-- <p></p> -->
     <div>
+      {% if not current_user.is_authenticated %}
       <a href="{{ url_for("sign_in") }}"><button type="button" class="btn primary-button">Log In</button></a>
+      {% endif %}
       <a href="#"><button type="button" class="btn secondary-button">Browse</button></a>
     </div>
 
