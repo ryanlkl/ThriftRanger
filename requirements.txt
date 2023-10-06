@@ -1,0 +1,16 @@
+Bootstrap_Flask
+Flask
+Flask_CKEditor
+Flask_Login
+Flask-Gravatar
+Flask-SQLAlchemy
+flask_sqlalchemy
+Flask_WTF
+Werkzeug
+WTForms
+SQLAlchemy
+gunicorn
+psycopg2-binary
+Flask-Login
+Flask-WTF
+geopy
