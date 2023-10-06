@@ -1,0 +1,31 @@
+{% from 'bootstrap5/form.html' import render_form %}
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<div class="container-fluid" style="margin:50px">
+  <div class="row d-flex justify-content-center">
+    <div class="col col-xl-4 col-m-12" style="max-width:80vh">
+      <ul class="nav nav-tabs" style="margin-bottom:20px;">
+        <li><a class="primary" data-toggle="tab" href="#login">LOG IN</a></li>
+        <li><a class="primary" data-toggle="tab" href="#signup">SIGN UP</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="login" class="tab-pane active">
+          {{ render_form(loginForm, novalidate=True) }}
+        </div>
+        <div id="signup" class="tab-pane">
+          {{ render_form(registerForm, novalidate=True) }}
+        </div>
+        <!-- Adding Flash message here for users trying to register twice -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <p class="flash" style="color:rgb(255, 44, 44)">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'footer.html' %}

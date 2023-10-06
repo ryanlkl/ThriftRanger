@@ -1,0 +1,15 @@
+{% from 'bootstrap5/form.html' import render_form %}
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<div class="container-fluid" style="margin:50px">
+  <div class="row d-flex justify-content-center">
+    <div class="col col-xl-8 col-m-12">
+      <div id="login" class="tab-pane active">
+        <h4>Add Store</h4>
+        <p>You will find the longitude or latitude of your address <a href="https://www.latlong.net/" target="_blank">here</a>.</p>
+        {{ render_form(form, novalidate=True) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'footer.html' %}

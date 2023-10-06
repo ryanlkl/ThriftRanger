@@ -1,37 +1,49 @@
-.primary {
-  color: #7bae37
+a {
+  text-decoration: none
 }
 
+#masthead > * {
+  margin:1% 10%
+}
+
+.primary {
+  color: #e34c00
+}
+
+a.primary:hover {
+  color: #ff874b;
+  transition-delay: 1s ease-in-out;
+}
+
+
 .primary-button {
-  background-color: #7bae37;
-  height: 6vh;
-  width: 15vh;
-  color: #062215;
-  margin-left: 11%;
-  margin-right: 20px;
-  font-size: 20px;
-  font-weight: 600;
+  background-color: #e34c00;
   border-radius: 25px;
+  border: none;
+  color: #f9f7f5
+}
+
+.primary-button:hover {
+  background-color: #ff874b;
 }
 
 .secondary-button {
-  background-color: #b3d784;
-  height: 6vh;
-  width: 15vh;
-  color: #062215;
-  font-size: 20px;
-  font-weight: 600;
+  background-color: #ff874b;
   border-radius: 25px;
+  border: none;
+  color: #f9f7f5
+}
+
+.secondary-button:hover {
+  background-color: #e34c00;
 }
 
 .home-subtitle {
   font-weight: 500;
-  margin-left: 10%;
   margin-bottom: -20px
 }
 
 .home-title {
   font-weight: 600;
-  margin-left: 10%;
   margin-bottom: 50px;
 }

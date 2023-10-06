@@ -6,7 +6,7 @@ Flask-Gravatar
 Flask-SQLAlchemy
 flask_sqlalchemy
 Flask_WTF
-Werkzeug
+Werkzeug==2.3.0
 WTForms
 SQLAlchemy
 gunicorn

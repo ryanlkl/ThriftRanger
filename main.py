@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, get_flashed_messages
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, logout_user, login_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from decouple import config
 from flask_bootstrap import Bootstrap5
-from sqlalchemy.orm import relationship
-from functools import wraps
+from forms import *
+from db import *
+from models import *
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config("SECRET_KEY")
@@ -20,60 +22,9 @@ def load_user(user_id):
 
 # Connect to DB
 app.config["SQLALCHEMY_DATABASE_URI"] = config("URI")
-db = SQLAlchemy()
-db.init_app(app)
-
-# Configure Tables
-class Store(db.Model):
-  __tablename__ = "stores"
-  id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String, nullable=False)
-  rating = db.Column(db.Float(2), nullable=False)
-  longitude = db.Column(db.Float, nullable=False)
-  latitude = db.Column(db.Float, nullable=False)
-  reviews = relationship("Review", back_populates="parent_store")
-  posts = relationship("Post", back_populates="parent_store")
-
-class User(UserMixin,db.Model):
-  __tablename__ = "users"
-  id = db.Column(db.Integer, primary_key=True)
-  username = db.Column(db.String(20), unique=True, nullable=False)
-  email = db.Column(db.String(50), unique=True, nullable=False)
-  password = db.Column(db.String, nullable=False)
-  first_name = db.Column(db.String(20), nullable=False)
-  last_name = db.Column(db.String(20))
-  posts = relationship("Post", back_populates="post_author")
-  reviews = relationship("Review", back_populates="review_author")
-
-class Post(db.Model):
-  __tablename__ = "posts"
-  id = db.Column(db.Integer, primary_key=True)
-  title = db.Column(db.String(150), nullable=False)
-  text = db.column(db.Text, nullable=False)
-  store_id = db.Column(db.Integer, db.ForeignKey("stores.id"))
-  parent_store = relationship("Store", back_populates="posts")
-  post_author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-  post_author = relationship("User", back_populates="posts")
-
-class Review(db.Model):
-  __tablename__ = "reviews"
-  id = db.Column(db.Integer, primary_key=True)
-  title = db.Column(db.String(150), nullable=False)
-  text = db.Column(db.Text, nullable=False)
-  rating = db.Column(db.Integer, nullable=False)
-  store_id = db.Column(db.Integer, db.ForeignKey("stores.id"))
-  parent_store = relationship("Store", back_populates="reviews")
-  review_author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-  review_author = relationship("User", back_populates="reviews")
-
-class Comments(db.Model):
-  __tablename__ = "comments"
-
-with app.app_context():
-  db.create_all()
+db_init(app)
 
 # Initialising Routes
-
 # Main Routes
 @app.route("/")
 def home():
@@ -84,39 +35,116 @@ def showMap():
   return "Map"
 
 # Show individual items
-@app.route("/profile/<int:user_id>", methods=["GET","POST"])
-def showProfile(user_id):
-  pass
+@app.route("/profile/<string:username>", methods=["GET","POST"])
+def showProfile(username):
+  user = db.session.execute(db.select(User).where(User.username == username)).scalar()
+  return render_template("profile.html", user=user)
 
-@app.route("/store/<int:store_id>", methods=["GET","POST"])
-def showStore(store_id):
+@app.route("/store/<string:store_name>", methods=["GET","POST"])
+def showStore(store_name):
   pass
 
 @app.route("/post/<int:post_id>", methods=["GET","POST"])
-def showStore(post_id):
+def showPost(post_id):
+  pass
+
+# Manage Stores
+@app.route("/<string:username>/stores")
+def stores(username):
+  username = db.session.execute(db.select(User).where(User.username == username)).scalar()
+  return render_template("stores.html",stores=username.stores)
+
+# Create Items
+@app.route("/<string:username>/create-store", methods=["GET","POST"])
+def addStore(username):
+  user = db.session.execute(db.select(User).where(User.username == username)).scalar()
+  form = StoreForm()
+  if form.validate_on_submit():
+    new_store = Store(
+      name = form.name.data,
+      admin = form.email.data,
+      longitude = form.longitude.data,
+      latitude = form.latitude.data,
+      address = form.address.data
+    )
+    db.session.add(new_store)
+    db.session.commit()
+    return redirect(url_for("stores",username=user))
+  return render_template("addStore.html",form=form)
+
+@app.route("/create-post", methods=["GET","POST"])
+def addPost():
+  pass
+
+@app.route("/store/<int:store_id>/create-review", methods=["GET","POST"])
+def addReview(store_id):
+  pass
+
+@app.route("/store/<int:store_id>/create-announcement", methods=["GET","POST"])
+def addAnnouncement(store_id):
   pass
 
 # Delete Items
-@app.route("delete/<int:store_id>")
+@app.route("/delete/<int:store_id>")
 def delete_store(store_id):
   pass
 
-@app.route("delete/<int:post_id>")
+@app.route("/delete/<int:post_id>")
 def delete_post(post_id):
   pass
 
-@app.route("delete/<int:review_id>")
+@app.route("/delete/<int:review_id>")
 def delete_review(review_id):
   pass
 
-@app.route("delete/<int:comment_id>")
+@app.route("/delete/<int:comment_id>")
 def delete_comment(comment_id):
   pass
 
 # User actions
-@app.route("sign-in", methods=["GET","POST"])
+@app.route("/sign-in", methods=["GET","POST"])
 def sign_in():
-  pass
+  registerForm = RegisterForm()
+  loginForm = LoginForm()
+  if registerForm.validate_on_submit():
+    user = db.session.execute(db.select(User).where(User.email == registerForm.email.data)).scalar()
+    if user:
+      flash("You've already signed up with that email, log in instead.")
+      return redirect(url_for("sign_in"))
+    user = db.session.execute(db.select(User).where(User.username == registerForm.username.data)).scalar()
+    if user:
+      flash("That username is already taken, please choose another one.")
+      return redirect(url_for("sign_in"))
+
+    password = generate_password_hash(
+      registerForm.password.data,
+      method="pbkdf2:sha256",
+      salt_length = 8
+    )
+    new_user = User(
+      email = registerForm.email.data,
+      username = registerForm.username.data,
+      password = password
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    login_user(new_user)
+    return redirect(url_for("home"))
+
+  if loginForm.validate_on_submit():
+    password = loginForm.password.data
+    user = db.session.execute(db.select(User).where(User.username == loginForm.username.data)).scalar()
+    if not user:
+      flash("That username does not exist, please try again.")
+      return redirect(url_for("sign_in"))
+    elif not check_password_hash(user.password, password):
+      flash("Password incorrect, please try again.")
+      return redirect(url_for("sign_in"))
+    else:
+      login_user(user)
+      return redirect(url_for("home"))
+
+  return render_template("sign-in.html", registerForm=registerForm, loginForm=loginForm)
 
 @app.route("/logout")
 def logout():

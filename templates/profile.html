@@ -1,0 +1,27 @@
+{% include 'header.html' %}
+{% include 'navbar.html' %}
+<div class="container-fluid" style="margin:50px">
+  <div class="row d-flex justify-content-center">
+    <div class="col col-xl-8 col-m-12">
+      <h1>{{user.username}}</h1>
+      <ul class="nav nav-tabs" style="margin-bottom:20px;">
+        <li><a class="primary" data-toggle="tab" href="#posts">POSTS</a></li>
+        <li><a class="primary" data-toggle="tab" href="#reviews">REVIEWS</a></li>
+        <li><a class="primary" data-toggle="tab" href="#comments">COMMENTS</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div id="posts" class="tab-pane active">
+          <p>POSTS</p>
+        </div>
+        <div id="reviews" class="tab-pane">
+          <p>REVIEWS</p>
+        </div>
+        <div id="comments" class="tab-pane">
+          <p>COMMENTS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'footer.html' %}
