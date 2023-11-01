@@ -7,6 +7,8 @@ from flask_bootstrap import Bootstrap5
 from forms import *
 from db import *
 from models import *
+from user_functions import UserFunctions
+from store_functions import StoreFunctions
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = config("SECRET_KEY")
@@ -66,17 +68,13 @@ def stores(username):
 def addStore(username):
   form = StoreForm()
   if form.validate_on_submit():
-    user = db.session.execute(db.select(User).where(User.username == username)).scalar()
-    new_store = Store(
+    return StoreFunctions.createStore(
+      username = username,
       name = form.name.data,
       longitude = form.longitude.data,
       latitude = form.latitude.data,
-      address = form.address.data,
-      admin = user
+      address = form.address.data
     )
-    db.session.add(new_store)
-    db.session.commit()
-    return redirect(url_for("stores",username=user.username))
   return render_template("addStore.html",form=form)
 
 @app.route("/create-post", methods=["GET","POST"])
@@ -113,50 +111,23 @@ def delete_comment(comment_id):
 def sign_in():
   registerForm = RegisterForm()
   loginForm = LoginForm()
-  if registerForm.validate_on_submit():
-    user = db.session.execute(db.select(User).where(User.email == registerForm.email.data)).scalar()
-    if user:
-      flash("You've already signed up with that email, log in instead.")
-      return redirect(url_for("sign_in"))
-    user = db.session.execute(db.select(User).where(User.username == registerForm.username.data)).scalar()
-    if user:
-      flash("That username is already taken, please choose another one.")
-      return redirect(url_for("sign_in"))
 
-    password = generate_password_hash(
-      registerForm.password.data,
-      method="pbkdf2:sha256",
-      salt_length = 8
-    )
-    new_user = User(
+  if registerForm.validate_on_submit():
+    return UserFunctions.createUser(
       email = registerForm.email.data,
       username = registerForm.username.data,
-      password = password
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    login_user(new_user)
-    return redirect(url_for("home"))
+      password = registerForm.password.data)
 
   if loginForm.validate_on_submit():
-    password = loginForm.password.data
-    user = db.session.execute(db.select(User).where(User.username == loginForm.username.data)).scalar()
-    if not user:
-      flash("That username does not exist, please try again.")
-      return redirect(url_for("sign_in"))
-    elif not check_password_hash(user.password, password):
-      flash("Password incorrect, please try again.")
-      return redirect(url_for("sign_in"))
-    else:
-      login_user(user)
-      return redirect(url_for("home"))
+    return UserFunctions.logInUser(
+      username = loginForm.username.data,
+      password = loginForm.password.data)
 
   return render_template("sign-in.html", registerForm=registerForm, loginForm=loginForm)
 
 @app.route("/logout")
 def logout():
-  logout_user()
-  return redirect(url_for("home"))
+  return UserFunctions.logOutUser()
 
 # Running App
 if __name__ == "__main__":
