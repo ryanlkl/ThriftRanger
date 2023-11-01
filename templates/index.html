@@ -1,5 +1,7 @@
 {% include 'header.html' %}
-{% include 'navbar.html' %}
+<div>
+  {% include 'navbar.html' %}
+</div>
   <div class="jumbotron" style="padding: 10%" id="masthead">
     <h3 class="home-subtitle">Welcome to</h3>
     <h1 class="home-title">
@@ -10,7 +12,7 @@
       {% if not current_user.is_authenticated %}
       <a href="{{ url_for("sign_in") }}"><button type="button" class="btn primary-button">Log In</button></a>
       {% endif %}
-      <a href="#"><button type="button" class="btn secondary-button">Browse</button></a>
+      <a href="{{ url_for("showMap") }}"><button type="button" class="btn secondary-button">Browse</button></a>
     </div>
 
   </div>

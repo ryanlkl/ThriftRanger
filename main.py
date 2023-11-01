@@ -32,7 +32,14 @@ def home():
 
 @app.route("/map")
 def showMap():
-  return "Map"
+  markers = [
+    {
+      "lat": 0,
+      "lon": 0,
+      "popup": "This is the middle of the map."
+    }
+  ]
+  return render_template("map.html", markers=markers)
 
 # Show individual items
 @app.route("/profile/<string:username>", methods=["GET","POST"])
